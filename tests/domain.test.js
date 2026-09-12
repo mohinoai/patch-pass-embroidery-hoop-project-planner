@@ -1,5 +1,5 @@
 import e from"node:test";import a from"node:assert/strict"
-;import{normalizeEntry as t,validateEntry as s,filterEntries as o,searchEntries as n,sortEntries as r}from"../src/domain.js";const d=t({id:"a",name:" Meadow ",
+;import{normalizeEntry as t,validateEntry as s,filterEntries as o,searchEntries as n,sortEntries as r,parseStored as p}from"../src/domain.js";const d=t({id:"a",name:" Meadow ",
 description:"Daisies",hoop:'6"',status:"In Progress",started:"2024-02-29",colors:"sage",notes:"gift"});e("normalization",()=>{
 a.equal(d.name,"Meadow"),a.equal(d.finished,"")}),e("valid leap day",()=>a.deepEqual(s(d,"2026-09-12"),{})),
 e("rejects invalid leap dates",()=>a.ok(s({...d,started:"2025-02-29"},"2026-09-12").started)),e("invalid dates",()=>{
@@ -12,3 +12,5 @@ e("immutability",()=>{const e=Object.freeze([Object.freeze(d),Object.freeze({...
 ;a.equal(r(e,"name")[0].name,"Aster"),a.equal(e[0].name,"Meadow"),a.equal(o(e,"Queued").length,1)}),e("safe keys",()=>{
 const e=t(JSON.parse('{"__proto__":{"polluted":true},"name":"Safe"}'));a.equal(e.polluted,void 0),a.equal(Object.hasOwn(e,"__proto__"),!1),
 a.equal({}.polluted,void 0)});
+e("reads storage through the same gate",()=>{const j=JSON.stringify,y="2026-09-12"
+;a.deepEqual(p(j([d]),y),[d]);for(const b of["{}",'["x"]',"[null]",'[{"id":"x"}]',j([d,d]),"[nope"])a.throws(()=>p(b,y))});

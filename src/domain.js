@@ -31,6 +31,17 @@ export function validateEntry(e,today) {
   if (e.finished && e.status!=='Finished') errors.finished='Choose Finished status to add a finish date.';
   return errors;
 }
+/** The form's validation gate, applied to whatever localStorage returns.
+ * @param {string} raw @param {string} today @returns {Entry[]} */
+export function parseStored(raw,today) {
+  const rows = JSON.parse(raw), seen = new Set();
+  if (!Array.isArray(rows)) throw Error('not a list');
+  return rows.map(row => {
+    const e = normalizeEntry(Object(row));
+    if (!e.id || seen.has(e.id) || Object.keys(validateEntry(e,today)).length) throw Error('invalid row');
+    return seen.add(e.id), e;
+  });
+}
 /** @param {Entry[]} entries @param {string} status @returns {Entry[]} */
 export const filterEntries = (entries,status) => entries.filter(e=>status==='All projects'||e.status===status);
 /** @param {Entry[]} entries @param {string} query @returns {Entry[]} */
